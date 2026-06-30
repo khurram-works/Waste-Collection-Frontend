@@ -4,10 +4,11 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { toast } from "react-toastify";
 import {
-  Listbox,
-  ListboxButton,
-  ListboxOption,
-  ListboxOptions,
+  Combobox,
+  ComboboxButton,
+  ComboboxInput,
+  ComboboxOption,
+  ComboboxOptions,
 } from "@headlessui/react";
 import { registerUser, getZones } from "../api/auth";
 import { useAuthNavigation } from "../hooks/useAuthNavigation";
@@ -206,6 +207,7 @@ export default function SignUpPage() {
   const [locating, setLocating] = useState(true);
   const [showPass, setShowPass] = useState(false);
   const [showCfm, setShowCfm] = useState(false);
+  const [zoneQuery, setZoneQuery] = useState("");
 
   const {
     register,
@@ -271,6 +273,13 @@ export default function SignUpPage() {
     }
   };
 
+  const filteredZones =
+    zoneQuery === ""
+      ? zones
+      : zones.filter((zone) =>
+          zone.name.toLowerCase().includes(zoneQuery.toLowerCase()),
+        );
+
   return (
     <>
       <style>{`
@@ -278,16 +287,11 @@ export default function SignUpPage() {
  
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
  
-        /* Prevent the whole page from scrolling — only right column scrolls */
         html, body { height: 100%; overflow: hidden; }
  
         .sw { font-family: 'DM Sans', sans-serif; }
  
-        /* ── Left panel ──────────────────────────────────────────────
-           overflow:hidden clips the decorative pseudo-elements only.
-           All real content is sized to fit exactly in 100vh via the
-           flex column + controlled padding below.
-        ── */
+
         .sw-panel {
           background: linear-gradient(155deg, #064e3b 0%, #065f46 45%, #047857 100%);
           position: relative;
@@ -305,8 +309,7 @@ export default function SignUpPage() {
           background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
           background-size: 26px 26px;
         }
- 
-        /* ── Right column scrolls independently ── */
+
         .sw-right {
           overflow-y: auto;
           overflow-x: hidden;
@@ -316,8 +319,7 @@ export default function SignUpPage() {
         }
         .sw-right::-webkit-scrollbar { width: 4px; }
         .sw-right::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 99px; }
- 
-        /* ── Submit button ── */
+
         @keyframes shimmer {
           0%   { background-position: -200% center; }
           100% { background-position:  200% center; }
@@ -341,7 +343,7 @@ export default function SignUpPage() {
         .sw-btn:active:not(:disabled) { transform: translateY(0); }
         .sw-btn:disabled { opacity: 0.65; cursor: not-allowed; }
  
-        /* ── Zone dropdown ── */
+
         .sw-zb {
           width: 100%; height: 44px; padding: 0 40px 0 14px;
           border-radius: 11px; border: 1px solid #e2e8f0;
@@ -373,7 +375,7 @@ export default function SignUpPage() {
         .sw-zopt.hi           { background: #ecfdf5; color: #065f46; font-weight: 600; }
         .sw-zopt:not(.hi):hover { background: #f8fafc; }
  
-        /* ── Animations ── */
+
         @keyframes swUp {
           from { opacity: 0; transform: translateY(14px); }
           to   { opacity: 1; transform: translateY(0);    }
@@ -385,7 +387,7 @@ export default function SignUpPage() {
         @keyframes spin { to { transform: rotate(360deg); } }
         .sw-spin { animation: spin 0.85s linear infinite; display: inline-flex; }
  
-        /* ── Responsive: hide panel on narrow screens ── */
+
         @media (max-width: 820px) {
           .sw-panel-col { display: none !important; }
           .sw-form-col  { width: 100% !important;   }
@@ -477,7 +479,6 @@ export default function SignUpPage() {
               </p>
             </div>
 
-            {/* Stats */}
             <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
               {STATS.map((s) => (
                 <div
@@ -939,96 +940,114 @@ export default function SignUpPage() {
                       render={({
                         field: { value, onChange },
                         fieldState: { error },
-                      }) => (
-                        <div>
-                          <Listbox value={value} onChange={onChange}>
-                            <div style={{ position: "relative" }}>
-                              <ListboxButton
-                                className={`sw-zb${error ? " err" : ""}`}
-                                style={{
-                                  color: value === 0 ? "#94a3b8" : "#0f172a",
-                                }}
-                              >
-                                {zones.find((z) => z.zoneId === value)?.name ||
-                                  "Select your pickup zone…"}
-                                <span
-                                  className="material-symbols-outlined"
+                      }) => {
+                        const selectedZone =
+                          zones.find((z) => z.zoneId === value) ?? null;
+
+                        return (
+                          <div>
+                            <Combobox
+                              value={selectedZone}
+                              onChange={(zone: ZoneData | null) => {
+                                onChange(zone?.zoneId ?? 0);
+                                setZoneQuery("");
+                              }}
+                              nullable
+                            >
+                              <div style={{ position: "relative" }}>
+                                <ComboboxInput
+                                  className={`sw-zb${error ? " err" : ""}`}
+                                  placeholder="Search or select your pickup zone..."
+                                  displayValue={(zone: ZoneData | null) =>
+                                    zone?.name ?? ""
+                                  }
+                                  onChange={(e) => setZoneQuery(e.target.value)}
+                                  style={{
+                                    color: selectedZone ? "#0f172a" : "#94a3b8",
+                                  }}
+                                />
+
+                                <ComboboxButton
                                   style={{
                                     position: "absolute",
                                     right: 11,
                                     top: "50%",
                                     transform: "translateY(-50%)",
-                                    fontSize: 18,
-                                    color: "#94a3b8",
-                                    pointerEvents: "none",
+                                    border: "none",
+                                    background: "transparent",
+                                    cursor: "pointer",
+                                    padding: 0,
+                                    display: "flex",
+                                    alignItems: "center",
                                   }}
                                 >
-                                  expand_more
-                                </span>
-                              </ListboxButton>
-                              <ListboxOptions className="sw-zopts">
-                                {zones.length === 0 ? (
-                                  <div
+                                  <span
+                                    className="material-symbols-outlined"
                                     style={{
-                                      padding: "10px 14px",
-                                      fontSize: 13,
+                                      fontSize: 18,
                                       color: "#94a3b8",
-                                      fontStyle: "italic",
                                     }}
                                   >
-                                    Loading zones…
-                                  </div>
-                                ) : (
-                                  zones.map((z) => (
-                                    <ListboxOption
-                                      key={z.zoneId}
-                                      value={z.zoneId}
-                                      className={({
-                                        active,
-                                        selected,
-                                      }: {
-                                        active: boolean;
-                                        selected: boolean;
-                                      }) =>
-                                        `sw-zopt${active || selected ? " hi" : ""}`
-                                      }
+                                    expand_more
+                                  </span>
+                                </ComboboxButton>
+
+                                <ComboboxOptions className="sw-zopts">
+                                  {filteredZones.length === 0 ? (
+                                    <div
+                                      style={{
+                                        padding: "10px 14px",
+                                        fontSize: 13,
+                                        color: "#94a3b8",
+                                        fontStyle: "italic",
+                                      }}
                                     >
-                                      {({
-                                        selected,
-                                      }: {
-                                        selected: boolean;
-                                      }) => (
-                                        <>
-                                          {selected ? (
-                                            <span
-                                              className="material-symbols-outlined"
-                                              style={{
-                                                fontSize: 14,
-                                                color: "#10b981",
-                                              }}
-                                            >
-                                              check
-                                            </span>
-                                          ) : (
-                                            <span
-                                              style={{
-                                                width: 14,
-                                                display: "inline-block",
-                                              }}
-                                            />
-                                          )}
-                                          <span>{z.name}</span>
-                                        </>
-                                      )}
-                                    </ListboxOption>
-                                  ))
-                                )}
-                              </ListboxOptions>
-                            </div>
-                          </Listbox>
-                          <Err msg={error?.message} />
-                        </div>
-                      )}
+                                      No zones found
+                                    </div>
+                                  ) : (
+                                    filteredZones.map((zone) => (
+                                      <ComboboxOption
+                                        key={zone.zoneId}
+                                        value={zone}
+                                        className={({ focus }) =>
+                                          `sw-zopt${focus ? " hi" : ""}`
+                                        }
+                                      >
+                                        {({ selected }) => (
+                                          <>
+                                            {selected ? (
+                                              <span
+                                                className="material-symbols-outlined"
+                                                style={{
+                                                  fontSize: 14,
+                                                  color: "#10b981",
+                                                }}
+                                              >
+                                                check
+                                              </span>
+                                            ) : (
+                                              <span
+                                                style={{
+                                                  width: 14,
+                                                  display: "inline-block",
+                                                }}
+                                              />
+                                            )}
+
+                                            <span>{zone.name}</span>
+                                          </>
+                                        )}
+                                      </ComboboxOption>
+                                    ))
+                                  )}
+                                </ComboboxOptions>
+                              </div>
+                            </Combobox>
+
+                            <Err msg={error?.message} />
+                          </div>
+                        );
+                      }}
                     />
                   </div>
 
