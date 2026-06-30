@@ -103,12 +103,19 @@ export interface TaskData {
   condition: string | null
 }
 
+export type Status =
+  | "PENDING"
+  | "ASSIGNED"
+  | "COLLECTED"
+  | "VERIFIED"
+  | "PAID";
+
 export interface PickupRequestItem {
   requestId: number;
   wasteType: string;
   requestDate: string;
   scheduledDate: string;
-  status: string;
+  status: Status;
   estimatedWeight: number;
   estimatedEarnings: number;
   pickupAddress: string;
@@ -121,9 +128,9 @@ export interface PickupRequestItem {
   workerName: string;
   workerPhone: string;
   workerZoneId: number;
-  routeName: RouteName[];
-  routeType: RouteType[];
-  routeSchedule: RouteSchedule[];
+  routeName: RouteName;
+  routeType: RouteType;
+  routeSchedule: RouteSchedule;
   worker:string;
 }
 

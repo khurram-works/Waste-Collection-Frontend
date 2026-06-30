@@ -19,7 +19,7 @@ interface Notification {
   createdAt: Date;
 }
 
-// ─── Notification type config ────────────────────────────────────────────────
+
 type NotificationTypeConfig = {
   icon: string;
   colorClass: string;
@@ -82,7 +82,7 @@ function getTypeConfig(type: string): NotificationTypeConfig {
   return NOTIFICATION_TYPES[type] ?? NOTIFICATION_TYPES.DEFAULT;
 }
 
-// ─── Time formatter ───────────────────────────────────────────────────────────
+
 function formatTime(date: Date): string {
   const diff = Math.floor(
     (Date.now() - new Date(date).getTime()) / 1000
@@ -97,7 +97,7 @@ function formatTime(date: Date): string {
   });
 }
 
-// ─── Greeting ─────────────────────────────────────────────────────────────────
+
 function getGreeting(): string {
   const h = new Date().getHours();
   if (h < 12) return "Good morning";
@@ -105,7 +105,7 @@ function getGreeting(): string {
   return "Good evening";
 }
 
-// ─── Initials ────────────────────────────────────────────────────────────────
+
 function getInitials(name: string): string {
   return name
     .split(" ")
@@ -115,7 +115,7 @@ function getInitials(name: string): string {
     .slice(0, 2);
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+
 const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
   const navigate = useNavigate();
   const userName = user?.name || "User";
@@ -134,7 +134,7 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
   const unreadCount = notifications.filter((n) => !n.isRead).length;
   const hasNotifications = notifications.length > 0;
 
-  // ── Long-poll for notifications ───────────────────────────────────────────
+
   useEffect(() => {
     if (!user?.userId) return;
     isPollingRef.current = true;
@@ -142,11 +142,6 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
     async function poll() {
       while (isPollingRef.current) {
         try {
-          // const res = await fetch(
-          //   `http://localhost:3000/citizen/notifications/long-poll?lastId=${lastIdRef.current}`,
-          //   { credentials: "include", headers: { "Cache-Control": "no-cache" } }
-          // );
-          // if (!res.ok) throw new Error(`${res.status}`);
 
           const data = await getNotifications(lastIdRef.current);
           if (!isPollingRef.current) break;
@@ -168,7 +163,6 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
     return () => { isPollingRef.current = false; };
   }, [user?.userId]);
 
-  // ── Close on outside click ────────────────────────────────────────────────
   useEffect(() => {
     if (!showNotifications) return;
 
@@ -198,7 +192,7 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
     };
   }, [showNotifications]);
 
-  // ── Mark single as read ───────────────────────────────────────────────────
+
   const markAsRead = useCallback((id: number) => {
     updateNotificationStatus(id)
       .then(() =>
@@ -209,7 +203,7 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
       .catch(console.error);
   }, []);
 
-  // ── Mark all as read ──────────────────────────────────────────────────────
+
   const markAllAsRead = useCallback(async () => {
     const unread = notifications.filter((n) => !n.isRead);
     if (!unread.length || markingAllRead) return;
@@ -244,7 +238,7 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
     }
   }
 
-  // ── Sorted: unread first ──────────────────────────────────────────────────
+
   const sortedNotifications = [...notifications].sort((a, b) => {
     if (a.isRead !== b.isRead) return a.isRead ? 1 : -1;
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
@@ -252,7 +246,7 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
 
   return (
     <>
-      {/* Mobile backdrop */}
+
       {showNotifications && (
         <div
           className="fixed inset-0 z-30 bg-black/20 backdrop-blur-[2px] sm:hidden"
@@ -262,16 +256,12 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
       )}
 
       <header className="sticky top-0 z-40 w-full shrink-0">
-        {/* Glass background with subtle mesh */}
         <div className="absolute inset-0 bg-white/80 backdrop-blur-xl border-b border-gray-100/80" />
-        {/* Subtle emerald shimmer strip */}
-        <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-400/40 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-linear-to-r from-transparent via-emerald-400/40 to-transparent" />
 
         <div className="relative flex items-center justify-between px-4 py-2.5 sm:px-6 lg:px-8 gap-3">
 
-          {/* ── Left: Brand + Greeting ─────────────────────────────────── */}
           <div className="flex items-center gap-3 min-w-0">
-            {/* Hamburger – mobile only */}
             <button
               type="button"
               onClick={onMenuClick}
@@ -283,14 +273,14 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
               </span>
             </button>
 
-            {/* Logo mark */}
+
             <div className="flex items-center gap-2.5 shrink-0">
-              <div className="relative flex items-center justify-center w-8 h-8 rounded-[10px] bg-gradient-to-br from-emerald-500 to-teal-600 shadow-md shadow-emerald-500/25">
+              <div className="relative flex items-center justify-center w-8 h-8 rounded-[10px] bg-linear-to-br from-emerald-500 to-teal-600 shadow-md shadow-emerald-500/25">
                 <span className="material-symbols-outlined text-white text-[16px] leading-none">
                   recycling
                 </span>
-                {/* Tiny shine */}
-                <div className="absolute top-[3px] left-[3px] w-2 h-1 rounded-full bg-white/30" />
+
+                <div className="absolute top-0.75 left-0.75 w-2 h-1 rounded-full bg-white/30" />
               </div>
               <div className="hidden sm:flex flex-col leading-none">
                 <span className="text-[13.5px] font-bold text-gray-900 tracking-[-0.02em]">
@@ -302,7 +292,7 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
               </div>
             </div>
 
-            {/* Divider + greeting – large screens */}
+
             <div className="hidden lg:flex items-center gap-3">
               <div className="w-px h-4 bg-gray-200" />
               <p className="text-[13px] text-gray-500 whitespace-nowrap">
@@ -315,10 +305,8 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
             </div>
           </div>
 
-          {/* ── Right: Actions ─────────────────────────────────────────── */}
           <div className="flex items-center gap-1 sm:gap-1.5">
 
-            {/* ── Notification Bell ──────────────────────────────────── */}
             <div className="relative">
               <button
                 ref={bellRef}
@@ -339,15 +327,15 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
                   {showNotifications ? "notifications_active" : "notifications"}
                 </span>
 
-                {/* Unread badge */}
+
                 {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-[3px] flex items-center justify-center text-[10px] font-bold text-white bg-red-500 rounded-full shadow-sm leading-none">
+                  <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-0.75 flex items-center justify-center text-[10px] font-bold text-white bg-red-500 rounded-full shadow-sm leading-none">
                     {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
                 )}
               </button>
 
-              {/* ── Notification Panel ─────────────────────────────── */}
+
               {showNotifications && (
                 <div
                   ref={panelRef}
@@ -356,7 +344,7 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
                   aria-label="Notifications"
                   className="
                     absolute right-0 mt-2.5
-                    lg:w-[340px] sm:w-[250px]
+                    lg:w-85 sm:w-62.5
                     bg-white rounded-2xl
                     shadow-[0_8px_30px_rgba(0,0,0,0.10),0_2px_8px_rgba(0,0,0,0.06)]
                     border border-gray-100
@@ -375,7 +363,7 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
                     }
                   `}</style>
 
-                  {/* Panel header */}
+
                   <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50/70">
                     <div className="flex items-center gap-2">
                       <span className="material-symbols-outlined text-emerald-600 text-[18px] leading-none">
@@ -408,14 +396,13 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
                     )}
                   </div>
 
-                  {/* Notification list */}
                   <div
                     className="overflow-y-auto overscroll-contain"
                     style={{ maxHeight: "420px" }}
                     role="list"
                   >
                     {!hasNotifications ? (
-                      /* Empty state */
+
                       <div className="flex flex-col items-center justify-center py-12 px-6 gap-3 text-center">
                         <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
                           <span className="material-symbols-outlined text-gray-400 text-[24px] leading-none">
@@ -433,7 +420,6 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
                       </div>
                     ) : (
                       <>
-                        {/* Unread section label */}
                         {unreadCount > 0 && (
                           <div className="px-4 pt-3 pb-1">
                             <span className="text-[10.5px] font-semibold tracking-[0.08em] uppercase text-gray-400">
@@ -451,7 +437,6 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
 
                           return (
                             <>
-                              {/* "Earlier" divider when transitioning from unread → read */}
                               {isFirstRead && (
                                 <div
                                   key={`divider-${n.id}`}
@@ -484,7 +469,6 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
                                   }
                                 `}
                               >
-                                {/* Type icon */}
                                 <div
                                   className={`
                                     mt-0.5 shrink-0 w-8 h-8 rounded-xl flex items-center justify-center
@@ -498,7 +482,6 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
                                   </span>
                                 </div>
 
-                                {/* Content */}
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-start justify-between gap-2">
                                     <p
@@ -534,7 +517,6 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
                                   </div>
                                 </div>
 
-                                {/* Hover arrow cue */}
                                 <span className="material-symbols-outlined text-[14px] text-gray-300 group-hover:text-gray-400 shrink-0 mt-1.5 transition-colors leading-none">
                                   chevron_right
                                 </span>
@@ -546,33 +528,20 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
                     )}
                   </div>
 
-                  {/* Panel footer */}
                   {hasNotifications && (
                     <div className="border-t border-gray-100 px-4 py-2.5 bg-gray-50/50 flex items-center justify-between">
                       <span className="text-[11px] text-gray-400">
                         {notifications.length} total notification
                         {notifications.length !== 1 ? "s" : ""}
                       </span>
-                      {/* <button
-                        type="button"
-                        className="text-[12px] text-emerald-600 font-medium hover:text-emerald-800 transition-colors focus-visible:outline-none focus-visible:underline"
-                        onClick={() => {
-                          setShowNotifications(false);
-                          navigate("/citizen/notifications");
-                        }}
-                      >
-                        View all
-                      </button> */}
                     </div>
                   )}
                 </div>
               )}
             </div>
 
-            {/* Divider */}
             <div className="w-px h-4 bg-gray-200 mx-0.5" aria-hidden="true" />
 
-            {/* ── User menu button ──────────────────────────────────── */}
             <button
               type="button"
               aria-label={`User menu for ${userName}`}
@@ -583,7 +552,6 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60
               "
             >
-              {/* Avatar */}
               <div className="relative w-7 h-7 rounded-full overflow-hidden shrink-0 ring-2 ring-emerald-200 group-hover:ring-emerald-300 transition-all">
                 {userAvatar ? (
                   <img
@@ -596,7 +564,7 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
                     }}
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
+                  <div className="w-full h-full bg-linear-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
                     <span className="text-white text-[10px] font-bold leading-none">
                       {initials}
                     </span>
@@ -604,9 +572,8 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
                 )}
               </div>
 
-              {/* Name + role */}
               <div className="hidden md:flex flex-col text-left min-w-0">
-                <span className="text-[13px] font-semibold text-gray-800 leading-tight truncate max-w-[110px] group-hover:text-gray-900 transition-colors">
+                <span className="text-[13px] font-semibold text-gray-800 leading-tight truncate max-w-27.5 group-hover:text-gray-900 transition-colors">
                   {userName}
                 </span>
                 <span className="text-[10.5px] text-gray-400 leading-tight tracking-[0.02em]">

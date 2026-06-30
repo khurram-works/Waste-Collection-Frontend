@@ -3,18 +3,11 @@
 @theme {
   --color-primary: #2e8a56;
   --color-background-light: #f6f8f7;
-  --max-width-300: 75rem;  /* For max-w-300 */
+  --max-width-300: 75rem;
   --font-display: "Public Sans", sans-serif;
 }
 
-/* .leaflet-container {
-  touch-action: pan-x pan-y pinch-zoom;
-} */
 
-/* .leaflet-container {
-  touch-action: none !important;
-} */
-
-*:not(.leaflet-container) {
-  touch-action: pan-x pan-y pinch-zoom;
+html {
+  scroll-behavior: smooth;
 }

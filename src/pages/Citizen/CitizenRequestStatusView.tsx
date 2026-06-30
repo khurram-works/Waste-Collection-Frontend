@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import RequestDetailsModal from "./CitizenRequestStatusViewDetail";
 import { pickuprequests } from "../../api/auth";
 import { useNavigate } from "react-router-dom";
-import { PickupRequests } from "../../Types/types";
+import { PickupRequests, PickupRequestItem } from "../../Types/types";
 
 const STATUS_CONFIG: Record<
   string,
@@ -51,7 +51,8 @@ function CitizenRequestStatusView() {
   const [loading, setLoading] = useState(true);
   const [pickupRequestData, setPickupRequestData] =
     useState<PickupRequests | null>(null);
-  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [selectedRequest, setSelectedRequest] =
+    useState<PickupRequestItem | null>(null);
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -72,7 +73,7 @@ function CitizenRequestStatusView() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[#f6f8f7]">
+      <div className="flex items-center justify-center h-screen bg-background-light">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-[3px] border-primary border-t-transparent rounded-full animate-spin" />
           <p className="text-sm text-zinc-400 font-medium tracking-wide">
@@ -104,8 +105,7 @@ function CitizenRequestStatusView() {
 
   return (
     <>
-      <main className="flex-1 flex flex-col bg-[#f6f8f7] min-h-screen">
-        {/* ── Page Header ── */}
+      <main className="flex-1 flex flex-col bg-background-light min-h-screen">
         <div className="bg-white border-b border-zinc-100 px-8 py-6">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div>
@@ -190,7 +190,7 @@ function CitizenRequestStatusView() {
 
           {/* ── Filters ── */}
           <div className="bg-white rounded-xl border border-zinc-100 shadow-sm p-5 flex flex-wrap gap-4 items-end">
-            <div className="flex flex-col gap-1.5 min-w-[180px]">
+            <div className="flex flex-col gap-1.5 min-w-45">
               <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
                 Status
               </label>
@@ -207,7 +207,7 @@ function CitizenRequestStatusView() {
                 ))}
               </select>
             </div>
-            <div className="flex flex-col gap-1.5 flex-1 min-w-[220px]">
+            <div className="flex flex-col gap-1.5 flex-1 min-w-55">
               <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
                 Search
               </label>
@@ -240,7 +240,6 @@ function CitizenRequestStatusView() {
             )}
           </div>
 
-          {/* ── Table ── */}
           <div className="bg-white rounded-xl border border-zinc-100 shadow-sm overflow-hidden">
             {filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 gap-3">
@@ -284,7 +283,7 @@ function CitizenRequestStatusView() {
                         <tr
                           key={req.requestId}
                           onClick={() => setSelectedRequest(req)}
-                          className="border-b border-zinc-50 last:border-0 hover:bg-primary/[0.03] transition-colors cursor-pointer group"
+                          className="border-b border-zinc-50 last:border-0 hover:bg-primary/3 transition-colors cursor-pointer group"
                         >
                           <td className="px-6 py-4">
                             <span className="font-mono text-sm font-semibold text-zinc-800">
@@ -391,12 +390,14 @@ function CitizenRequestStatusView() {
         </div>
       </main>
 
-      <RequestDetailsModal
-        isOpen={!!selectedRequest}
-        onClose={() => setSelectedRequest(null)}
-        request={selectedRequest}
-        totalearnings={pickupRequestData?.totalEarnings}
-      />
+      {selectedRequest && (
+        <RequestDetailsModal
+          isOpen={!!selectedRequest}
+          onClose={() => setSelectedRequest(null)}
+          request={selectedRequest}
+          totalearnings={pickupRequestData?.totalEarnings}
+        />
+      )}
     </>
   );
 }
