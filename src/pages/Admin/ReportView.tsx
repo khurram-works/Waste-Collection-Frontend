@@ -528,7 +528,21 @@ function KpiCard({
   );
 }
 
-function CustomAreaTooltip({ active, payload, label }: any) {
+interface TooltipPayloadItem {
+  name: string
+  color: string
+  value: string | number
+}
+
+function CustomAreaTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean
+  payload?: TooltipPayloadItem[]
+  label?: string
+}) {
   if (!active || !payload?.length) return null;
   return (
     <div
@@ -552,7 +566,7 @@ function CustomAreaTooltip({ active, payload, label }: any) {
       >
         {label}
       </div>
-      {payload.map((p: any) => (
+      {payload.map((p) => (
         <div
           key={p.name}
           style={{
@@ -583,7 +597,14 @@ function CustomAreaTooltip({ active, payload, label }: any) {
   );
 }
 
-function PickupActivityChart({ weeklyReport }: { weeklyReport: any[] }) {
+interface WeeklyReportPoint {
+  label: string
+  pending: number
+  collected: number
+  paid: number
+}
+
+function PickupActivityChart({ weeklyReport }: { weeklyReport: WeeklyReportPoint[] }) {
   return (
     <div
       style={{
@@ -772,7 +793,14 @@ function WasteCompositionChart({
     innerRadius,
     outerRadius,
     percent,
-  }: any) => {
+  }: {
+    cx: number;
+    cy: number;
+    midAngle: number;
+    innerRadius: number;
+    outerRadius: number;
+    percent: number;
+  }) => {
     const RADIAN = Math.PI / 180;
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -1409,15 +1437,15 @@ function SystemActivity({ systemReport }: { systemReport: AuditLog[] }) {
 }
 
 export default function ReportView() {
-  const [timeRange, setTimeRange] = useState("Last 30 Days");
-  const [zone, setZone] = useState("All Zones");
+  const [timeRange] = useState("Last 30 Days");
+  const [zone] = useState("All Zones");
   const [loading, setLoading] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
 
   const [data, setData] = useState<reportData>({});
   const [workersData, setWorkersData] = useState<workersData[]>([]);
   const [systemReport, setSystemReport] = useState<AuditLog[]>([]);
-  const [weeklyReport, setWeeklyReport] = useState<any[]>([]);
+  const [weeklyReport, setWeeklyReport] = useState<WeeklyReportPoint[]>([]);
 
   useEffect(() => {
     setLoading(true);
@@ -1535,25 +1563,6 @@ export default function ReportView() {
       accent: "violet",
     },
   ];
-
-  const selectStyle: React.CSSProperties = {
-    background: T.white,
-    border: `1px solid ${T.gray200}`,
-    fontSize: 13,
-    borderRadius: 10,
-    padding: "8px 14px",
-    color: T.gray700,
-    fontWeight: 500,
-    fontFamily: "'DM Sans', sans-serif",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-    cursor: "pointer",
-    outline: "none",
-    appearance: "none" as const,
-    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%239ca3af' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E")`,
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "right 10px center",
-    paddingRight: 30,
-  };
 
   return (
     <div className="sw-report">

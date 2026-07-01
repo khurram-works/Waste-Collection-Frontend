@@ -542,7 +542,7 @@ const StatCard = ({
     }}
   >
     <div
-      className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${accent}`}
+      className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${accent}`}
     >
       <span
         className="material-symbols-outlined text-[20px]"
@@ -573,6 +573,11 @@ const CitizenEarningsView = () => {
  
   useEffect(() => {
     const getTransactions = async () => {
+      if (!user?.userId) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const res = await transactionHistory(user.userId);
         setTransactions(res.transaction);
@@ -584,7 +589,7 @@ const CitizenEarningsView = () => {
       }
     };
     getTransactions();
-  }, []);
+  }, [user?.userId]);
 
   const totalWithdrawn = transactions
   .filter(tx => tx.type === "DEBIT" && tx.transactionStatus === "SUCCESS")
@@ -759,7 +764,7 @@ const CitizenEarningsView = () => {
               [0, 1, 2].map((i) => (
                 <div
                   key={i}
-                  className="bg-white rounded-2xl border border-slate-200 p-5 h-[82px] animate-pulse"
+                  className="bg-white rounded-2xl border border-slate-200 p-5 h-20.5 animate-pulse"
                 />
               ))
             ) : (
@@ -917,7 +922,7 @@ const CitizenEarningsView = () => {
                               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold ${cfg.pill}`}
                             >
                               <span
-                                className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${cfg.dot}`}
+                                className={`w-1.5 h-1.5 rounded-full shrink-0 ${cfg.dot}`}
                               />
                               {cfg.label}
                             </span>

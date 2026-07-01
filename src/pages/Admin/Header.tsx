@@ -3,8 +3,15 @@ import { updateNotificationStatus } from "../../api/auth";
 import { useNavigate } from "react-router-dom";
 import { getNotifications } from "../../api/auth";
 
+interface AdminUser {
+  name?: string;
+  avatar?: string;
+  userId?: number;
+  [key: string]: unknown;
+}
+
 interface HeaderProps {
-  user?: { name?: string; avatar?: string; userId?: number; [key: string]: any };
+  user?: AdminUser;
 }
 
 interface Notification {
@@ -13,12 +20,12 @@ interface Notification {
   type: string;
   title: string;
   message: string;
-  metadata: any;
+  metadata: Record<string, unknown>;
   isRead: boolean;
   createdAt: Date;
 }
 
-// ─── Notification type config ─────────────────────────────────────────────────
+
 type NotificationTypeConfig = {
   icon: string;
   colorClass: string;
@@ -123,7 +130,7 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
 
   // ── Long-poll ─────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!user?.userId) return;
+    if (!user?.userId) return undefined;
     isPollingRef.current = true;
 
     async function poll() {
@@ -157,7 +164,7 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
 
   // ── Close on outside click / Escape ──────────────────────────────────────
   useEffect(() => {
-    if (!showNotifications) return;
+    if (!showNotifications) return undefined;
 
     function handleOutside(e: MouseEvent) {
       if (
@@ -235,7 +242,7 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
 
   return (
     <>
-      {/* Mobile backdrop */}
+
       {showNotifications && (
         <div
           className="fixed inset-0 z-30 bg-black/20 backdrop-blur-[2px] sm:hidden"
@@ -244,25 +251,24 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
         />
       )}
 
-      <header className="sticky top-0 z-50 w-full flex-shrink-0">
-        {/* Glass layer */}
+      <header className="sticky top-0 z-50 w-full shrink-0">
+
         <div className="absolute inset-0 bg-white/85 backdrop-blur-xl border-b border-gray-100/80" />
-        {/* Violet accent strip — Admin portal differentiation */}
-        <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-violet-400/40 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-linear-to-r from-transparent via-violet-400/40 to-transparent" />
 
         <div className="relative flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8 max-w-screen-2xl mx-auto gap-3">
 
-          {/* ── Left: Brand + Greeting ─────────────────────────────────── */}
-          <div className="flex items-center gap-3 flex-shrink-0 min-w-0">
+
+          <div className="flex items-center gap-3 shrink-0 min-w-0">
             <div className="flex items-center gap-2.5 shrink-0">
-              <div className="relative flex items-center justify-center w-8 h-8 rounded-[10px] bg-gradient-to-br from-emerald-500 to-teal-600 shadow-md shadow-emerald-500/25">
+              <div className="relative flex items-center justify-center w-8 h-8 rounded-[10px] bg-linear-to-br from-emerald-500 to-teal-600 shadow-md shadow-emerald-500/25">
                 <span
                   className="material-symbols-outlined text-white text-[16px] leading-none"
                   style={{ fontVariationSettings: "'FILL' 1" }}
                 >
                   recycling
                 </span>
-                <div className="absolute top-[3px] left-[3px] w-2 h-1 rounded-full bg-white/30" />
+                <div className="absolute top-0.75 left-0.75 w-2 h-1 rounded-full bg-white/30" />
               </div>
 
               <div className="hidden sm:flex flex-col leading-none">
@@ -330,13 +336,13 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
                 </span>
 
                 {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-[3px] flex items-center justify-center text-[10px] font-bold text-white bg-red-500 rounded-full shadow-sm leading-none">
+                  <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-0.75 flex items-center justify-center text-[10px] font-bold text-white bg-red-500 rounded-full shadow-sm leading-none">
                     {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
                 )}
               </button>
 
-              {/* ── Notification Panel ─────────────────────────────── */}
+  
               {showNotifications && (
                 <div
                   ref={panelRef}
@@ -345,7 +351,7 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
                   aria-label="Notifications"
                   className="
                     absolute right-0 mt-2.5
-                    w-[340px] sm:w-[380px]
+                    w-85 sm:w-95
                     bg-white rounded-2xl
                     shadow-[0_8px_30px_rgba(0,0,0,0.10),0_2px_8px_rgba(0,0,0,0.06)]
                     border border-gray-100
@@ -362,7 +368,7 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
                     }
                   `}</style>
 
-                  {/* Panel header */}
+
                   <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50/70">
                     <div className="flex items-center gap-2">
                       <span className="material-symbols-outlined text-violet-500 text-[18px] leading-none">
@@ -395,7 +401,7 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
                     )}
                   </div>
 
-                  {/* List */}
+
                   <div
                     className="overflow-y-auto overscroll-contain"
                     style={{ maxHeight: "420px" }}
@@ -464,7 +470,6 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
                                   }
                                 `}
                               >
-                                {/* Type icon */}
                                 <div
                                   className={`mt-0.5 shrink-0 w-8 h-8 rounded-xl flex items-center justify-center ${cfg.bgClass}`}
                                 >
@@ -476,7 +481,6 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
                                   </span>
                                 </div>
 
-                                {/* Content */}
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-start justify-between gap-2">
                                     <p
@@ -512,7 +516,6 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
                                   </div>
                                 </div>
 
-                                {/* Hover cue */}
                                 <span className="material-symbols-outlined text-[14px] text-gray-300 group-hover:text-gray-400 shrink-0 mt-1.5 transition-colors leading-none">
                                   chevron_right
                                 </span>
@@ -524,23 +527,13 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
                     )}
                   </div>
 
-                  {/* Footer */}
+
                   {hasNotifications && (
                     <div className="border-t border-gray-100 px-4 py-2.5 bg-gray-50/50 flex items-center justify-between">
                       <span className="text-[11px] text-gray-400">
                         {notifications.length} notification
                         {notifications.length !== 1 ? "s" : ""}
                       </span>
-                      {/* <button
-                        type="button"
-                        className="text-[12px] text-emerald-600 font-medium hover:text-emerald-800 transition-colors focus-visible:outline-none focus-visible:underline"
-                        onClick={() => {
-                          setShowNotifications(false);
-                          navigate("/admin/notifications");
-                        }}
-                      >
-                        View all
-                      </button> */}
                     </div>
                   )}
                 </div>
@@ -549,7 +542,7 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
 
             <div className="w-px h-4 bg-gray-200 mx-0.5" aria-hidden="true" />
 
-            {/* ── User menu button ──────────────────────────────────── */}
+  
             <button
               type="button"
               aria-label={`User menu for ${userName}`}
@@ -560,7 +553,6 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60
               "
             >
-              {/* Avatar */}
               <div className="relative w-7 h-7 rounded-full overflow-hidden shrink-0 ring-2 ring-violet-200 group-hover:ring-violet-300 transition-all">
                 {userAvatar ? (
                   <img
@@ -572,7 +564,7 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
                     }}
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                  <div className="w-full h-full bg-linear-to-br from-violet-500 to-purple-600 flex items-center justify-center">
                     <span className="text-white text-[10px] font-bold leading-none">
                       {initials}
                     </span>
@@ -580,9 +572,9 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
                 )}
               </div>
 
-              {/* Name + role */}
+
               <div className="hidden sm:flex flex-col text-left min-w-0">
-                <span className="text-[13px] font-semibold text-gray-800 leading-tight truncate max-w-[110px] group-hover:text-gray-900 transition-colors">
+                <span className="text-[13px] font-semibold text-gray-800 leading-tight truncate max-w-27.5 group-hover:text-gray-900 transition-colors">
                   {userName}
                 </span>
                 <span className="text-[10.5px] text-gray-400 leading-tight tracking-[0.02em]">
@@ -590,9 +582,6 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
                 </span>
               </div>
 
-              {/* <span className="material-symbols-outlined text-[14px] text-gray-400 group-hover:text-gray-600 transition-colors leading-none hidden sm:block">
-                keyboard_arrow_down
-              </span> */}
             </button>
           </div>
         </div>

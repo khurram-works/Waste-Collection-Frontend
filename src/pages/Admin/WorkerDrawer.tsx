@@ -19,7 +19,7 @@ const avatarColors = [
   'bg-rose-100 text-rose-700',
   'bg-cyan-100 text-cyan-700',
 ];
-const getAvatarColor = (id: any) =>
+const getAvatarColor = (id: string | number) =>
   avatarColors[Number(String(id).slice(-1)) % avatarColors.length];
  
 const getInitials = (name: string) =>
@@ -36,8 +36,6 @@ const WorkerDrawer = ({
   worker: WorkerData;
   zones: ZoneData[];
 }) => {
-  if (!worker) return null;
- 
   const [selectedZoneId, setSelectedZoneId] = useState<number>(worker.zone?.zoneId || 0);
   const [selectedVehicle, setSelectedVehicle] = useState<string>(worker.vehicle || '');
   const [selectedRoute, setSelectedRoute] = useState<string>(worker.responsibleFor || '');
@@ -80,8 +78,12 @@ const WorkerDrawer = ({
       if (result?.success === false) throw new Error(result.message || 'Update failed');
       toast.success(result?.message || 'Worker updated successfully');
       onClose();
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to update. Please try again.');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || 'Failed to update. Please try again.');
+      } else {
+        toast.error('Failed to update. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -94,8 +96,12 @@ const WorkerDrawer = ({
       if (result?.success === false) throw new Error(result.message || 'Update failed');
       toast.success(result?.message || 'Worker deactivated successfully');
       onClose();
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to deactivate. Please try again.');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || 'Failed to deactivate. Please try again.');
+      } else {
+        toast.error('Failed to deactivate. Please try again.');
+      }
     } finally {
       setIsDeactivating(false);
     }
@@ -105,7 +111,6 @@ const WorkerDrawer = ({
  
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
-      {/* Backdrop */}
       <div className="fixed inset-0 bg-black/30 backdrop-blur-[2px] transition-opacity" />
  
       <div className="fixed inset-0 flex justify-end">
@@ -113,8 +118,7 @@ const WorkerDrawer = ({
           transition
           className="w-full max-w-md bg-white h-full shadow-2xl flex flex-col transform transition duration-300 ease-in-out data-closed:translate-x-full"
         >
-          {/* ── Worker Identity Header ── */}
-          <div className="relative bg-gradient-to-br from-[#f8faf9] to-white border-b border-[#dde3e0] px-6 pt-6 pb-5">
+          <div className="relative bg-linear-to-br from-[#f8faf9] to-white border-b border-[#dde3e0] px-6 pt-6 pb-5">
             <button
               onClick={onClose}
               className="absolute top-4 right-4 size-8 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all"
@@ -123,7 +127,7 @@ const WorkerDrawer = ({
             </button>
  
             <div className="flex items-center gap-4">
-              <div className={`size-14 rounded-2xl ${getAvatarColor(worker.userId)} flex items-center justify-center font-black text-xl flex-shrink-0 shadow-sm`}>
+              <div className={`size-14 rounded-2xl ${getAvatarColor(worker.userId)} flex items-center justify-center font-black text-xl shrink-0 shadow-sm`}>
                 {getInitials(worker.name)}
               </div>
               <div className="min-w-0">
@@ -174,14 +178,14 @@ const WorkerDrawer = ({
           </div>
  
           {/* ── Tabs ── */}
-          <div className="flex border-b border-[#dde3e0] bg-white flex-shrink-0">
+          <div className="flex border-b border-[#dde3e0] bg-white shrink-0">
             {[
-              { key: 'assignment', label: 'Assignment', icon: 'badge' },
-              { key: 'performance', label: 'Performance', icon: 'trending_up' },
+              { key: 'assignment', label: 'Assignment', icon: 'badge' } as const,
+              { key: 'performance', label: 'Performance', icon: 'trending_up' } as const,
             ].map((tab) => (
               <button
                 key={tab.key}
-                onClick={() => setActiveTab(tab.key as any)}
+                onClick={() => setActiveTab(tab.key)}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-bold transition-all border-b-2 ${
                   activeTab === tab.key
                     ? 'border-primary text-primary bg-primary/5'
@@ -374,7 +378,7 @@ const WorkerDrawer = ({
               </div>
             )}
           </div>
-          <div className="flex-shrink-0 p-5 border-t border-[#dde3e0] bg-white space-y-3">
+          <div className="shrink-0 p-5 border-t border-[#dde3e0] bg-white space-y-3">
             <button
               onClick={saveChanges}
               disabled={isSubmitting || !hasChanges}

@@ -37,7 +37,7 @@ function LoginPage() {
 
     const onSubmit = async (data: Form) => {
     try {
-      const res = await toast.promise(loginUser(data as any), {
+      const res = await toast.promise(loginUser(data), {
         pending: "Logging in...",
         success: "Logged in successfully!",
       });
@@ -48,8 +48,12 @@ function LoginPage() {
         ADMIN: admin,
       };
       (map[res.user.role] ?? (() => toast.error("Unknown role.")))();
-    } catch (err: any) {
-      toast.error(err?.message || "Login failed. Please try again.");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error(err.message || "Login failed. Please try again.");
+      } else {
+        toast.error("Login failed. Please try again.");
+      }
     }
   };
 

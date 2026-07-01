@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
-import { useForm, Resolver } from "react-hook-form";
+import { useForm, useWatch, Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { registerWorker } from "../../api/auth";
@@ -87,7 +87,7 @@ function AddWorkerDialog({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
     register,
     handleSubmit,
     reset,
-    watch,
+    control,
     trigger,
     formState: { errors, isSubmitting },
   } = useForm<WorkerValues>({
@@ -105,16 +105,18 @@ function AddWorkerDialog({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
     },
   });
  
-  const emailValue = watch("email");
-  const passwordValue = watch("password") || "";
-  const statusValue = watch("status");
- 
+  const emailValue = useWatch({ control, name: "email" }) as string | undefined;
+  const passwordValue = useWatch({ control, name: "password" }) as string | undefined || "";
+  const statusValue = useWatch({ control, name: "status" }) as boolean | undefined;
+  const zoneIdValue = useWatch({ control, name: "zoneId" }) as number | undefined;
+  const assignedRouteValue = useWatch({ control, name: "assignedRoute" }) as string | undefined;
+
   // Reset step when dialog closes
   useEffect(() => {
     if (!isOpen) {
       setTimeout(() => { setCurrentStep(1); reset(); }, 300);
     }
-  }, [isOpen]);
+  }, [isOpen, reset]);
  
   const stepFields: Record<number, (keyof WorkerValues)[]> = {
     1: ["name", "email", "phone"],
@@ -131,16 +133,26 @@ function AddWorkerDialog({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
  
   const onSubmit = async (data: WorkerValues) => {
     try {
-      const payload = { ...data, status: data.status ? "ACTIVE" : "INACTIVE" };
-      await toast.promise(registerWorker(payload as any), {
+      type RegisterWorkerPayload = Omit<WorkerValues, "status"> & {
+        status: "ACTIVE" | "INACTIVE";
+      };
+      const payload: RegisterWorkerPayload = {
+        ...data,
+        status: data.status ? "ACTIVE" : "INACTIVE",
+      };
+      await toast.promise(registerWorker(payload), {
         pending: "Creating worker account…",
         success: "Worker created successfully!",
         error: "Failed to create worker",
       });
       reset();
       onClose();
-    } catch (error: any) {
-      toast.error(error?.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Failed to create worker");
+      }
     }
   };
  
@@ -153,8 +165,7 @@ function AddWorkerDialog({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
             transition
             className="relative w-full sm:max-w-lg bg-white sm:rounded-2xl shadow-2xl flex flex-col duration-300 ease-out data-closed:scale-95 data-closed:opacity-0 overflow-hidden max-h-screen sm:max-h-[90vh]"
           >
-            {/* ── Header ── */}
-            <div className="px-6 pt-6 pb-4 border-b border-[#f0f4f2] flex-shrink-0">
+            <div className="px-6 pt-6 pb-4 border-b border-[#f0f4f2] shrink-0">
               <div className="flex items-start justify-between">
                 <div>
                   <h2 className="text-xl font-black text-[#121614]">Add New Worker</h2>
@@ -168,11 +179,10 @@ function AddWorkerDialog({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
                 </button>
               </div>
  
-              {/* Step Indicator */}
               <div className="flex items-center gap-0 mt-5">
                 {STEPS.map((step, i) => (
                   <React.Fragment key={step.id}>
-                    <div className="flex flex-col items-center flex-shrink-0">
+                    <div className="flex flex-col items-center shrink-0">
                       <div
                         className={`size-8 rounded-full flex items-center justify-center font-black text-xs transition-all duration-300 ${
                           currentStep > step.id
@@ -309,7 +319,7 @@ function AddWorkerDialog({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
                           { value: 'recycling', label: 'Recycling', icon: 'recycling', desc: 'Recyclable materials' },
                           { value: 'landfill', label: 'Landfill', icon: 'delete_sweep', desc: 'General waste' },
                         ].map((route) => {
-                          const routeValue = watch("assignedRoute");
+                          const routeValue = assignedRouteValue;
                           return (
                             <label
                               key={route.value}
@@ -336,8 +346,7 @@ function AddWorkerDialog({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
                       </div>
                       <FieldError message={errors.assignedRoute?.message} />
                     </div>
- 
-                    {/* Account Status */}
+
                     <div className="flex items-center justify-between bg-[#f8faf9] rounded-xl border border-[#dde3e0] p-4">
                       <div>
                         <p className="text-sm font-bold text-gray-700">Account Status</p>
@@ -353,8 +362,7 @@ function AddWorkerDialog({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
                     </div>
                   </div>
                 )}
- 
-                {/* STEP 3: Credentials */}
+
                 {currentStep === 3 && (
                   <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-200">
                     <div className="flex items-center gap-2 mb-1">
@@ -406,18 +414,18 @@ function AddWorkerDialog({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
                       <FieldError message={errors.password?.message} />
                     </div>
  
-                    {/* Summary Card */}
+
                     <div className="bg-[#f8faf9] rounded-xl border border-[#dde3e0] p-4 space-y-2">
                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Review Summary</p>
                       {[
-                        { icon: 'person', label: 'Name', value: watch('name') || '—' },
-                        { icon: 'mail', label: 'Email', value: watch('email') || '—' },
-                        { icon: 'location_on', label: 'Zone ID', value: watch('zoneId') ? `Zone ${watch('zoneId')}` : '—' },
-                        { icon: 'route', label: 'Route', value: watch('assignedRoute') || '—' },
+                        { icon: 'person', label: 'Name', value: emailValue || '—' },
+                        { icon: 'mail', label: 'Email', value: emailValue || '—' },
+                        { icon: 'location_on', label: 'Zone ID', value: zoneIdValue ? `Zone ${zoneIdValue}` : '—' },
+                        { icon: 'route', label: 'Route', value: assignedRouteValue || '—' },
                       ].map((item) => (
                         <div key={item.label} className="flex items-center gap-2 text-xs">
                           <span className="material-symbols-outlined text-gray-300 text-sm">{item.icon}</span>
-                          <span className="text-gray-400 font-medium w-12 flex-shrink-0">{item.label}</span>
+                          <span className="text-gray-400 font-medium w-12 shrink-0">{item.label}</span>
                           <span className="text-gray-700 font-semibold truncate">{item.value}</span>
                         </div>
                       ))}
@@ -427,8 +435,7 @@ function AddWorkerDialog({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
               </div>
             </form>
  
-            {/* ── Footer ── */}
-            <div className="px-6 py-4 bg-[#f8faf9] border-t border-[#f0f4f2] flex items-center justify-between gap-3 flex-shrink-0">
+            <div className="px-6 py-4 bg-[#f8faf9] border-t border-[#f0f4f2] flex items-center justify-between gap-3 shrink-0">
               <button
                 type="button"
                 onClick={currentStep === 1 ? onClose : goBack}

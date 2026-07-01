@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { approveWithdrawal, rejectWithdrawal } from "../../api/auth";
 import { toast } from "react-toastify";
+import { allWithdrawalsData } from "../../Types/types";
 
 const formatAmount = (amount: number) =>
   `Rs ${amount?.toLocaleString("en-PK") ?? "0"}`;
@@ -56,7 +57,7 @@ type TimelineStep = {
   timestamp?: string | Date | null;
 };
 
-function buildTimeline(request: any): TimelineStep[] {
+function buildTimeline(request: allWithdrawalsData): TimelineStep[] {
   const status = request?.status?.toUpperCase();
 
   const steps: TimelineStep[] = [
@@ -90,8 +91,13 @@ function buildTimeline(request: any): TimelineStep[] {
     },
   ];
 
-  if (status === "PENDING") steps[0].state = "done", (steps[1].state = "active");
-  if (status === "APPROVED") steps[2].state = "active";
+  if (status === "PENDING") {
+    steps[0].state = "done";
+    steps[1].state = "active";
+  }
+  if (status === "APPROVED") {
+    steps[2].state = "active";
+  }
 
   return steps;
 }
@@ -107,7 +113,7 @@ function InfoRow({ label, value, mono = false }: { label: string; value: React.R
   return (
     <div>
       <p className="text-xs text-[#6a8174] mb-0.5">{label}</p>
-      <p className={`text-sm font-semibold text-[#121614] ${mono ? "font-mono bg-[#f6f8f7] px-2 py-0.5 rounded inline-block" : ""}`}>
+      <p className={`text-sm font-semibold text-[#121614] ${mono ? "font-mono bg-background-light px-2 py-0.5 rounded inline-block" : ""}`}>
         {value ?? "—"}
       </p>
     </div>
@@ -121,7 +127,7 @@ export default function WithDrawDetails({
 }: {
   open: boolean;
   onClose: () => void;
-  request: any;
+  request: allWithdrawalsData;
 }) {
   const [adminNote, setAdminNote] = useState("");
 
@@ -191,7 +197,7 @@ export default function WithDrawDetails({
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            <div className="overflow-y-auto flex-1 bg-[#f6f8f7]">
+            <div className="overflow-y-auto flex-1 bg-background-light">
               <div className="p-4 md:p-6 space-y-5">
                 <section>
                   <h3 className="text-[10px] font-bold text-[#6a8174] uppercase tracking-widest mb-3 font-['Public_Sans']">
@@ -199,7 +205,7 @@ export default function WithDrawDetails({
                   </h3>
                   <div className="bg-white rounded-xl p-4 md:p-5 border border-[#e4eae6] shadow-sm">
                     <div className="flex items-center gap-4 mb-4 pb-4 border-b border-[#f0f2f1]">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#c7ecce] to-[#90d4a3] flex items-center justify-center text-[#2e8a57] font-bold text-base shrink-0 shadow-sm">
+                      <div className="w-12 h-12 rounded-full bg-linear-to-br from-[#c7ecce] to-[#90d4a3] flex items-center justify-center text-[#2e8a57] font-bold text-base shrink-0 shadow-sm">
                         {getInitials(displayName)}
                       </div>
                       <div className="min-w-0">
@@ -267,7 +273,7 @@ export default function WithDrawDetails({
                   </h3>
                   <div className="bg-white rounded-xl p-4 md:p-5 border border-[#e4eae6] shadow-sm">
                     <div className="relative pl-4">
-                      <div className="absolute left-[1.85rem] top-3 bottom-3 w-0.5 bg-gradient-to-b from-[#2e8a57] via-[#dde3e0] to-[#dde3e0]" />
+                      <div className="absolute left-[1.85rem] top-3 bottom-3 w-0.5 bg-linear-to-b from-[#2e8a57] via-[#dde3e0] to-[#dde3e0]" />
 
                       {timeline.map((step, i) => {
                         const st = stepStyle[step.state];
@@ -349,7 +355,7 @@ export default function WithDrawDetails({
                     <span className="material-symbols-outlined text-[18px]">task_alt</span>
                     This request has been paid
                   </div>
-                  <button className="px-4 py-2.5 rounded-xl text-sm border border-[#dde3e0] text-[#6a8174] hover:bg-[#f6f8f7] transition-colors flex items-center gap-2">
+                  <button className="px-4 py-2.5 rounded-xl text-sm border border-[#dde3e0] text-[#6a8174] hover:bg-background-light transition-colors flex items-center gap-2">
                     <span className="material-symbols-outlined text-[18px]">receipt</span>
                     Receipt
                   </button>

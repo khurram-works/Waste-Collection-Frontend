@@ -52,7 +52,7 @@ const TaskListView = () => {
         setAllTasks(result?.totalTasks[0]._count.assignedPickups || 0);
         setCompletedTasks(result?.completedTasks[0]._count.completedPickups || 0);
         setRates(result.rates);
-      } catch (e) {
+      } catch {
         toast.error("Failed to fetch tasks");
       } finally {
         setLoading(false);

@@ -60,7 +60,7 @@ function WorkerView() {
     'bg-rose-100 text-rose-700',
     'bg-cyan-100 text-cyan-700',
   ];
-  const getAvatarColor = (id: any) =>
+  const getAvatarColor = (id: string | number) =>
     avatarColors[Number(String(id).slice(-1)) % avatarColors.length];
  
   if (loading) {
@@ -98,20 +98,20 @@ function WorkerView() {
       <div className="max-w-full px-6 md:px-8 py-8 space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="relative bg-white rounded-2xl p-5 border border-[#dde3e0] shadow-sm overflow-hidden group hover:shadow-md transition-shadow">
-            <div className="absolute top-0 left-0 h-1 w-full bg-gradient-to-r from-primary/60 to-primary rounded-t-2xl" />
+            <div className="absolute top-0 left-0 h-1 w-full bg-linear-to-r from-primary/60 to-primary rounded-t-2xl" />
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Workers</p>
                 <p className="text-4xl font-black text-[#121614] mt-1">{dashboardData.length}</p>
                 <p className="text-[10px] text-gray-400 mt-1 font-medium">Registered in system</p>
               </div>
-              <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                 <span className="material-symbols-outlined text-primary text-xl">groups</span>
               </div>
             </div>
           </div>
           <div className="relative bg-white rounded-2xl p-5 border border-[#dde3e0] shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-            <div className="absolute top-0 left-0 h-1 w-full bg-gradient-to-r from-blue-400 to-blue-500 rounded-t-2xl" />
+            <div className="absolute top-0 left-0 h-1 w-full bg-linear-to-r from-blue-400 to-blue-500 rounded-t-2xl" />
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">On Duty Now</p>
@@ -120,20 +120,20 @@ function WorkerView() {
                   {dashboardData.length > 0 ? Math.round((activeCount / dashboardData.length) * 100) : 0}% workforce active
                 </p>
               </div>
-              <div className="size-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+              <div className="size-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
                 <span className="material-symbols-outlined text-blue-500 text-xl">bolt</span>
               </div>
             </div>
           </div>
           <div className="relative bg-white rounded-2xl p-5 border border-[#dde3e0] shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-            <div className="absolute top-0 left-0 h-1 w-full bg-gradient-to-r from-orange-400 to-amber-500 rounded-t-2xl" />
+            <div className="absolute top-0 left-0 h-1 w-full bg-linear-to-r from-orange-400 to-amber-500 rounded-t-2xl" />
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Zones Covered</p>
                 <p className="text-4xl font-black text-[#121614] mt-1">{zones.length}</p>
                 <p className="text-[10px] text-gray-400 mt-1 font-medium">City collection areas</p>
               </div>
-              <div className="size-10 rounded-xl bg-orange-50 flex items-center justify-center flex-shrink-0">
+              <div className="size-10 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
                 <span className="material-symbols-outlined text-orange-500 text-xl">map</span>
               </div>
             </div>
@@ -189,7 +189,7 @@ function WorkerView() {
                   {['Worker ID', 'Full Name', 'Contact', 'Zone', 'Status', "Today's Tasks", 'Actions'].map((h) => (
                     <th
                       key={h}
-                      className="px-5 py-3.5 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] bg-[#f8faf9] whitespace-nowrap"
+                      className="px-5 py-3.5 text-[10px] font-black text-gray-400 uppercase tracking-widest bg-[#f8faf9] whitespace-nowrap"
                     >
                       {h}
                     </th>
@@ -225,7 +225,7 @@ function WorkerView() {
                         </td>
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-3">
-                            <div className={`size-9 rounded-xl ${getAvatarColor(worker.userId)} flex items-center justify-center font-black text-xs flex-shrink-0`}>
+                            <div className={`size-9 rounded-xl ${getAvatarColor(worker.userId)} flex items-center justify-center font-black text-xs shrink-0`}>
                               {getInitials(worker.name)}
                             </div>
                             <div>

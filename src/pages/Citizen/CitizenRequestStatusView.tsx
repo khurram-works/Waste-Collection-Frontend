@@ -277,7 +277,7 @@ function CitizenRequestStatusView() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map((req, i) => {
+                    {filtered.map((req) => {
                       const cfg = STATUS_CONFIG[req.status];
                       return (
                         <tr

@@ -260,7 +260,7 @@ export default function SignUpPage() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      const { confirmPassword, terms, ...payload } = data;
+      const { confirmPassword: _confirmPassword, terms: _terms, ...payload } = data;
       const res = await toast.promise(registerUser(payload as userData), {
         pending: "Creating your account…",
         success: "Account created!",
@@ -268,8 +268,12 @@ export default function SignUpPage() {
       });
       setUser(res.user);
       login();
-    } catch (err: any) {
-      toast.error(err?.message || "Something went wrong.");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error(err.message || "Something went wrong.");
+      } else {
+        toast.error("Something went wrong.");
+      }
     }
   };
 

@@ -8,7 +8,6 @@ import {
   ListboxOptions,
 } from "@headlessui/react";
 import { CheckIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
-import clsx from "clsx";
 
 interface AuditLog {
   auditId: string;
@@ -113,7 +112,7 @@ function StatCard({
             <p className="text-[11px] text-gray-400 font-medium mt-1.5">{delta}</p>
           )}
         </div>
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${gradient}`}>
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${gradient}`}>
           <span
             className="material-symbols-outlined text-white text-[18px]"
             style={{ fontVariationSettings: "'FILL' 1" }}
@@ -334,10 +333,10 @@ export default function AuditLogs() {
         className="flex-1 overflow-auto bg-gray-50 min-h-screen"
         style={{ fontFamily: "'DM Sans', sans-serif" }}
       >
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm shadow-emerald-500/25">
+              <div className="w-10 h-10 rounded-xl bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm shadow-emerald-500/25">
                 <span
                   className="material-symbols-outlined text-white text-[20px]"
                   style={{ fontVariationSettings: "'FILL' 1" }}
@@ -760,7 +759,7 @@ function AuditTableRow({
       <td className="px-5 py-3.5">
         <div className="flex items-center gap-2.5">
           <div
-            className={`w-8 h-8 rounded-lg bg-gradient-to-br ${role.avatar} flex items-center justify-center flex-shrink-0 shadow-sm`}
+            className={`w-8 h-8 rounded-lg bg-linear-to-br ${role.avatar} flex items-center justify-center shrink-0 shadow-sm`}
           >
             <span className="text-white text-[11px] font-black">{getInitials(log.userId)}</span>
           </div>
@@ -852,7 +851,7 @@ function AuditMobileCard({
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2.5">
           <div
-            className={`w-9 h-9 rounded-xl bg-gradient-to-br ${role.avatar} flex items-center justify-center flex-shrink-0 shadow-sm`}
+            className={`w-9 h-9 rounded-xl bg-linear-to-br ${role.avatar} flex items-center justify-center shrink-0 shadow-sm`}
           >
             <span className="text-white text-[12px] font-black">{getInitials(log.userId)}</span>
           </div>

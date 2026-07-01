@@ -58,6 +58,8 @@ const CONDITION_CONFIG = [
     badgeBg: "#fee2e2",
   },
 ];
+
+
  
 export default function VerifyWasteModal({ isOpen, onClose, task, rates = [] }) {
   const presentationOptions = useMemo(() => {
@@ -314,7 +316,7 @@ export default function VerifyWasteModal({ isOpen, onClose, task, rates = [] }) 
       `}</style>
  
       <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="vwm-root relative z-[200]" onClose={onClose}>
+        <Dialog as="div" className="vwm-root relative z-200" onClose={onClose}>
  
 
           <TransitionChild

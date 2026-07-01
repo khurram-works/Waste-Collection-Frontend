@@ -32,8 +32,12 @@ const WorkerMenuDialog = ({ isOpen, onClose, workerId, workerName }: WorkerMenuD
       }
       toast.success(result?.message || 'Worker deleted successfully');
       handleClose();
-    } catch (error: any) {
-      toast.error(error?.error || 'Failed to delete worker');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || 'Failed to delete worker');
+      } else {
+        toast.error('Failed to delete worker');
+      }
     } finally {
       setIsDeleting(false);
     }

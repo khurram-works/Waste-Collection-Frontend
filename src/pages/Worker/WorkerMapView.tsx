@@ -21,7 +21,7 @@ import { RateData, TaskData } from "@/Types/types";
 import VerifyWasteModal from "./WasteVerificationModal";
 import { updateTaskStatus } from "../../api/auth";
  
-let DefaultIcon = L.icon({
+const DefaultIcon = L.icon({
   iconUrl: icon,
   shadowUrl: iconShadow,
   iconSize: [25, 41],
@@ -91,7 +91,7 @@ const WorkerMapView = forwardRef(
         setDistance(Math.round(d));
         setAtPickup(d < 50);
       }
-    }, [current]);
+    }, [current, pickup]);
  
     const handleCollect = async () => {
       setCollecting(true);

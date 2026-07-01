@@ -70,7 +70,7 @@ const CitizenAvatar = ({ name }: { name: string }) => {
   ];
   const gradient = palettes[name.charCodeAt(0) % palettes.length];
   return (
-    <div className={`size-8 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white text-[11px] font-bold shrink-0 shadow-sm`}>
+    <div className={`size-8 rounded-full bg-linear-to-br ${gradient} flex items-center justify-center text-white text-[11px] font-bold shrink-0 shadow-sm`}>
       {initials}
     </div>
   );
@@ -81,7 +81,7 @@ const SkeletonRow = () => (
     {[140, 100, 160, 200, 100, 90, 70].map((w, i) => (
       <td key={i} className="px-5 py-4">
         <div
-          className="h-3.5 rounded-full bg-gradient-to-r from-[#f0f4f2] via-[#e8edea] to-[#f0f4f2] animate-pulse"
+          className="h-3.5 rounded-full bg-linear-to-r from-[#f0f4f2] via-[#e8edea] to-[#f0f4f2] animate-pulse"
           style={{ width: `${w}px`, maxWidth: "100%" }}
         />
       </td>
@@ -155,7 +155,7 @@ const ManageView = () => {
  
       return true;
     });
-  }, [dashboardData, activeTab, searchQuery, wasteFilter, zoneFilter]);
+  }, [dashboardData, activeTab, searchQuery, wasteFilter]);
  
   if (loading) {
     return (
@@ -211,7 +211,7 @@ const ManageView = () => {
                 >
                   {tab.label}
                   <span className={`
-                    text-[11px] font-extrabold px-1.5 py-0.5 rounded-full min-w-[20px] text-center transition-colors
+                    text-[11px] font-extrabold px-1.5 py-0.5 rounded-full min-w-5 text-center transition-colors
                     ${active
                       ? "bg-[#2e8a57] text-white"
                       : tab.key === "PENDING" && count > 0
@@ -233,7 +233,7 @@ const ManageView = () => {
  
             <div className={`
               flex items-center gap-2 h-9 px-3 rounded-xl bg-white border transition-all
-              flex-1 min-w-[200px] max-w-sm
+              flex-1 min-w-50 max-w-sm
               ${searchQuery
                 ? "border-[#2e8a57] ring-2 ring-[#2e8a57]/10"
                 : "border-[#e2e8e4] hover:border-[#2e8a57]/40"
@@ -415,7 +415,7 @@ const ManageView = () => {
                       </td>
  
                       {/* Address */}
-                      <td className="px-5 py-4 max-w-[180px]">
+                      <td className="px-5 py-4 max-w-45">
                         <p className="text-[13px] text-[#6a8174] truncate font-medium" title={request.address}>
                           {request.address}
                         </p>

@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useAuthContext } from "../../context/authContext";
-import { useForm, Resolver } from "react-hook-form";
+import { useForm, useWatch, Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { updatedWorkerProfile, updatedWorkerPassword, deleteWorkerAccount } from "../../api/auth";
@@ -81,7 +81,7 @@ const Field = ({
     {children}
     {hint && !error && (
       <p className="flex items-center gap-1 text-[11.5px] text-[#9ca3af] leading-snug">
-        <span className="material-symbols-outlined flex-shrink-0" style={{ fontSize: 12 }}>
+        <span className="material-symbols-outlined shrink-0" style={{ fontSize: 12 }}>
           info
         </span>
         {hint}
@@ -89,7 +89,7 @@ const Field = ({
     )}
     {error && (
       <p className="flex items-center gap-1 text-[11.5px] text-red-500 animate-[slideDown_.15s_ease]">
-        <span className="material-symbols-outlined flex-shrink-0" style={{ fontSize: 13 }}>
+        <span className="material-symbols-outlined shrink-0" style={{ fontSize: 13 }}>
           error
         </span>
         {error}
@@ -133,9 +133,7 @@ const Req = ({ met, label }: { met: boolean; label: string }) => (
   </div>
 );
 
-/* ─────────────────────────────────────────────────────
-   MAIN COMPONENT
-───────────────────────────────────────────────────── */
+
 const WorkerProfileView = () => {
   const { user, setUser } = useAuthContext();
   const navigate = useNavigate();
@@ -143,7 +141,6 @@ const WorkerProfileView = () => {
   const [showCur, setShowCur] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showCfm, setShowCfm] = useState(false);
-  const [pwVal, setPwVal]     = useState("");
   const [saveOk, setSaveOk]   = useState(false);
   const [activeTab, setActiveTab] = useState<"info" | "password" | "danger">("info");
   const saveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -152,7 +149,7 @@ const WorkerProfileView = () => {
     register,
     handleSubmit,
     reset,
-    watch,
+    control,
     formState: { errors, isSubmitting, isDirty },
   } = useForm<PersonalInfoFormValues>({
     resolver: yupResolver(personalInfoSchema) as Resolver<PersonalInfoFormValues>,
@@ -169,7 +166,7 @@ const WorkerProfileView = () => {
     register: regPw,
     handleSubmit: handlePw,
     reset: resetPw,
-    watch: watchPw,
+    control: controlPw,
     formState: { errors: pwErrors, isSubmitting: isPwSubmitting },
   } = useForm<PasswordFormValues>({
     resolver: yupResolver(passwordSchema) as Resolver<PasswordFormValues>,
@@ -177,12 +174,10 @@ const WorkerProfileView = () => {
     mode: "onTouched",
   });
 
-  useEffect(() => {
-    setPwVal(watchPw("newPassword") ?? "");
-  }, [watchPw("newPassword")]);
+  const newPassword = useWatch({ control: controlPw, name: "newPassword" });
 
-  const strength    = getStrength(pwVal);
-  const watchedName = watch("name");
+  const strength    = getStrength(newPassword ?? "");
+  const watchedName = useWatch({ control, name: "name" });
 
   const onSubmit = async (data: PersonalInfoFormValues) => {
     try {
@@ -192,8 +187,12 @@ const WorkerProfileView = () => {
       setSaveOk(true);
       clearTimeout(saveTimer.current);
       saveTimer.current = setTimeout(() => setSaveOk(false), 2500);
-    } catch (e: any) {
-      toast.error(e.message);
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        toast.error(e.message);
+      } else {
+        toast.error("Something went wrong");
+      }
     }
   };
 
@@ -202,8 +201,12 @@ const WorkerProfileView = () => {
       await updatedWorkerPassword(data);
       resetPw();
       toast.success("Password updated successfully");
-    } catch (e: any) {
-      toast.error(e.message);
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        toast.error(e.message);
+      } else {
+        toast.error("Something went wrong");
+      }
     }
   };
 
@@ -214,8 +217,12 @@ const WorkerProfileView = () => {
       localStorage.clear();
       navigate("/");
       toast.success("Account deleted successfully");
-    } catch (e: any) {
-      toast.error(e.message);
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        toast.error(e.message);
+      } else {
+        toast.error("Something went wrong");
+      }
     }
   };
 
@@ -233,21 +240,17 @@ const WorkerProfileView = () => {
         fontFamily: "'DM Sans', sans-serif",
       }}
     >
-      <div className="max-w-[980px] mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
+      <div className="max-w-245 mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
         <div className="grid grid-cols-1 lg:grid-cols-[268px_1fr] gap-5 lg:gap-7 items-start">
 
-          {/* ══════════════════════════════════════
-              SIDEBAR
-          ══════════════════════════════════════ */}
           <div className="flex flex-col gap-4 lg:sticky lg:top-8">
 
-            {/* Profile Card */}
             <div
               className="bg-white rounded-2xl border border-[#e5e7eb] overflow-hidden"
               style={{ boxShadow: "0 1px 8px rgba(0,0,0,.06), 0 0 0 1px rgba(5,150,105,.03)" }}
             >
               <div
-                className="relative h-[80px] overflow-hidden"
+                className="relative h-20 overflow-hidden"
                 style={{
                   background:
                     "linear-gradient(135deg, #064e3b 0%, #047857 40%, #059669 70%, #34d399 100%)",
@@ -265,14 +268,14 @@ const WorkerProfileView = () => {
                   <rect width="100%" height="100%" fill="url(#dots)" />
                 </svg>
                 <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 pointer-events-none" />
-                <div className="absolute right-10 bottom-[-12px] h-10 w-10 rounded-full bg-white/[.07] pointer-events-none" />
+                <div className="absolute right-10 -bottom-3 h-10 w-10 rounded-full bg-white/[.07] pointer-events-none" />
               </div>
 
               <div className="px-5 mt-7 pb-5">
                 {/* Avatar */}
                 <div className="flex items-end gap-3 -mt-7 mb-4">
                   <div
-                    className="h-[58px] w-[58px] rounded-2xl border-[3px] border-white flex items-center justify-center select-none flex-shrink-0"
+                    className="h-14.5 w-14.5 rounded-2xl border-[3px] border-white flex items-center justify-center select-none shrink-0"
                     style={{
                       background: "linear-gradient(145deg, #047857, #10b981)",
                       boxShadow: "0 4px 14px rgba(5,150,105,.32)",
@@ -296,15 +299,15 @@ const WorkerProfileView = () => {
                   </div>
                 </div>
 
-                {/* Badges */}
+
                 <div className="flex items-center gap-1.5 mb-4">
-                  <div className="inline-flex items-center gap-1.5 bg-[#ecfdf5] border border-[#a7f3d0] text-[#065f46] text-[10.5px] font-semibold rounded-full px-2.5 py-[3px]">
+                  <div className="inline-flex items-center gap-1.5 bg-[#ecfdf5] border border-[#a7f3d0] text-[#065f46] text-[10.5px] font-semibold rounded-full px-2.5 py-0.75">
                     <span className="material-symbols-outlined" style={{ fontSize: 11 }}>
                       engineering
                     </span>
                     Verified Worker
                   </div>
-                  <div className="inline-flex items-center gap-1.5 bg-[#f0fdf4] border border-[#bbf7d0] text-[#166534] text-[10.5px] font-semibold rounded-full px-2.5 py-[3px]">
+                  <div className="inline-flex items-center gap-1.5 bg-[#f0fdf4] border border-[#bbf7d0] text-[#166534] text-[10.5px] font-semibold rounded-full px-2.5 py-0.75">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     Active
                   </div>
@@ -312,7 +315,7 @@ const WorkerProfileView = () => {
 
                 <div className="h-px bg-[#f3f4f6] mb-4" />
 
-                {/* Meta info */}
+
                 <div className="space-y-2.5">
                   {[
                     { icon: "home_pin",   label: "Address",   val: user.address || "Not set" },
@@ -321,13 +324,13 @@ const WorkerProfileView = () => {
                   ].map(({ icon, label, val }) => (
                     <div key={label} className="flex items-start gap-2.5">
                       <span
-                        className="material-symbols-outlined text-[#d1d5db] flex-shrink-0 mt-[1px]"
+                        className="material-symbols-outlined text-[#d1d5db] shrink-0 mt-px"
                         style={{ fontSize: 14 }}
                       >
                         {icon}
                       </span>
                       <div className="flex-1 min-w-0">
-                        <span className="text-[10.5px] text-[#9ca3af] block leading-none mb-[3px]">
+                        <span className="text-[10.5px] text-[#9ca3af] block leading-none mb-0.75">
                           {label}
                         </span>
                         <span className="text-[12px] font-semibold text-[#374151] leading-snug line-clamp-2">
@@ -340,7 +343,6 @@ const WorkerProfileView = () => {
               </div>
             </div>
 
-            {/* Tab Nav */}
             <div
               className="bg-white rounded-2xl border border-[#e5e7eb] overflow-hidden"
               style={{ boxShadow: "0 1px 4px rgba(0,0,0,.04)" }}
@@ -354,7 +356,7 @@ const WorkerProfileView = () => {
                       key={key}
                       type="button"
                       onClick={() => setActiveTab(key)}
-                      className={`w-full flex items-center gap-3 px-3.5 py-[10px] rounded-xl text-[12.5px] font-semibold transition-all duration-200 group ${
+                      className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[12.5px] font-semibold transition-all duration-200 group ${
                         isActive
                           ? isDanger
                             ? "bg-red-50 text-red-600"
@@ -365,7 +367,7 @@ const WorkerProfileView = () => {
                       }`}
                     >
                       <span
-                        className={`material-symbols-outlined flex-shrink-0 transition-colors duration-200 ${
+                        className={`material-symbols-outlined shrink-0 transition-colors duration-200 ${
                           isActive
                             ? isDanger
                               ? "text-red-500"
@@ -379,7 +381,7 @@ const WorkerProfileView = () => {
                       {label}
                       {isActive && (
                         <span
-                          className={`ml-auto h-1.5 w-1.5 rounded-full flex-shrink-0 ${
+                          className={`ml-auto h-1.5 w-1.5 rounded-full shrink-0 ${
                             isDanger ? "bg-red-500" : "bg-emerald-500"
                           }`}
                         />
@@ -390,12 +392,12 @@ const WorkerProfileView = () => {
               </div>
             </div>
 
-            {/* Official Assignment Card */}
+
             <div
               className="bg-white rounded-2xl border border-[#e5e7eb] p-4 hidden lg:block"
               style={{ boxShadow: "0 1px 4px rgba(0,0,0,.04)" }}
             >
-              <p className="text-[10px] font-bold tracking-[0.1em] uppercase text-[#c8cdd8] mb-3">
+              <p className="text-[10px] font-bold tracking-widest uppercase text-[#c8cdd8] mb-3">
                 Official Assignment
               </p>
               <div className="grid grid-cols-2 gap-2">
@@ -423,14 +425,12 @@ const WorkerProfileView = () => {
             </div>
           </div>
 
-          {/* ══════════════════════════════════════
-              FORM PANEL
-          ══════════════════════════════════════ */}
+
           <div
             className="bg-white rounded-2xl border border-[#e5e7eb]"
             style={{ boxShadow: "0 1px 8px rgba(0,0,0,.06)" }}
           >
-            {/* Panel Header */}
+
             <div className="px-6 md:px-8 pt-6 pb-5 border-b border-[#f3f4f6]">
               <div className="flex items-center gap-3">
                 <div>
@@ -454,7 +454,6 @@ const WorkerProfileView = () => {
                 </div>
               </div>
 
-              {/* Tab pills — mobile only */}
               <div className="flex items-center gap-2 mt-4 lg:hidden overflow-x-auto pb-0.5 scrollbar-none">
                 {tabs.map(({ key, label }) => {
                   const isActive = activeTab === key;
@@ -464,7 +463,7 @@ const WorkerProfileView = () => {
                       key={key}
                       type="button"
                       onClick={() => setActiveTab(key)}
-                      className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold transition-all duration-200 border ${
+                      className={`shrink-0 px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold transition-all duration-200 border ${
                         isActive
                           ? isDanger
                             ? "bg-red-50 text-red-600 border-red-200"
@@ -479,11 +478,11 @@ const WorkerProfileView = () => {
               </div>
             </div>
 
-            {/* ── Personal Info Tab ── */}
+
             {activeTab === "info" && (
               <div className="px-6 md:px-8 py-7 space-y-5 animate-[fadeSlide_.2s_ease]">
 
-                {/* Name */}
+
                 <Field label="Full Name" error={errors.name?.message}>
                   <div className="relative">
                     <span
@@ -501,7 +500,7 @@ const WorkerProfileView = () => {
                   </div>
                 </Field>
 
-                {/* Email */}
+
                 <Field
                   label="Email Address"
                   error={errors.email?.message}
@@ -529,7 +528,7 @@ const WorkerProfileView = () => {
                   </div>
                 </Field>
 
-                {/* Phone */}
+
                 <Field label="Phone Number" error={errors.phone?.message}>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 flex items-center gap-2 pl-3.5 border-r border-[#e5e7eb] pr-3 pointer-events-none z-10 select-none">
@@ -540,19 +539,18 @@ const WorkerProfileView = () => {
                       {...register("phone")}
                       type="tel"
                       placeholder="03XXXXXXXXX"
-                      className={`${inputBase} pl-[76px]`}
+                      className={`${inputBase} pl-19`}
                     />
                   </div>
                 </Field>
 
-                {/* Address */}
                 <Field label="Primary Address" error={errors.address?.message}>
                   <div
                     className="rounded-xl border border-[#e5e7eb] bg-[#fafafa] overflow-hidden transition-all duration-150 focus-within:border-[#059669] focus-within:ring-[3px] focus-within:ring-[#059669]/10 focus-within:bg-white hover:border-[#d1d5db] hover:bg-white"
                   >
                     <div className="flex items-start gap-2.5 pt-3 px-4 pb-1">
                       <span
-                        className="material-symbols-outlined text-[#d1d5db] mt-[2px] flex-shrink-0"
+                        className="material-symbols-outlined text-[#d1d5db] mt-0.5 shrink-0"
                         style={{ fontSize: 16 }}
                       >
                         location_on
@@ -566,7 +564,7 @@ const WorkerProfileView = () => {
                     </div>
                     <div className="flex items-center gap-1.5 px-4 py-2.5 bg-[#f0fdf4] border-t border-[#d1fae5] mt-1">
                       <span
-                        className="material-symbols-outlined text-[#6ee7b7] flex-shrink-0"
+                        className="material-symbols-outlined text-[#6ee7b7] shrink-0"
                         style={{ fontSize: 12 }}
                       >
                         route
@@ -578,7 +576,6 @@ const WorkerProfileView = () => {
                   </div>
                 </Field>
 
-                {/* Actions */}
                 <div className="flex items-center justify-between pt-2 border-t border-[#f3f4f6]">
                   <button
                     type="button"
@@ -602,7 +599,7 @@ const WorkerProfileView = () => {
 
                   <button
                     type="button"
-                    onClick={handleSubmit(onSubmit)}
+                    onClick={() => void handleSubmit(onSubmit)()}
                     disabled={isSubmitting || !isDirty}
                     className={`h-10 px-6 rounded-xl text-[13px] font-bold transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[.98] ${
                       saveOk
@@ -639,11 +636,9 @@ const WorkerProfileView = () => {
               </div>
             )}
 
-            {/* ── Password Tab ── */}
             {activeTab === "password" && (
               <div className="px-6 md:px-8 py-7 space-y-5 animate-[fadeSlide_.2s_ease]">
 
-                {/* Current password */}
                 <Field label="Current Password" error={pwErrors.currentPassword?.message}>
                   <div className="relative">
                     <span
@@ -662,7 +657,6 @@ const WorkerProfileView = () => {
                   </div>
                 </Field>
 
-                {/* New + confirm */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Field label="New Password" error={pwErrors.newPassword?.message}>
                     <div className="relative">
@@ -701,13 +695,12 @@ const WorkerProfileView = () => {
                   </Field>
                 </div>
 
-                {/* Strength meter */}
                 {pwVal && strength && (
                   <div className="rounded-xl border border-[#f0f0f0] bg-[#fafafa] px-4 py-4 space-y-3 animate-[fadeSlide_.18s_ease]">
                     <div className="flex items-center gap-3">
                       <div className="flex gap-1.5 flex-1">
                         {[1, 2, 3, 4].map((b) => (
-                          <div key={b} className="flex-1 h-[5px] rounded-full bg-[#eeeeee] overflow-hidden">
+                          <div key={b} className="flex-1 h-1.25 rounded-full bg-[#eeeeee] overflow-hidden">
                             <div
                               className="h-full rounded-full transition-all duration-400"
                               style={{
@@ -737,7 +730,7 @@ const WorkerProfileView = () => {
                 {/* Tip */}
                 <div className="flex items-start gap-2.5 rounded-xl bg-amber-50 border border-amber-100 px-4 py-3">
                   <span
-                    className="material-symbols-outlined text-amber-400 flex-shrink-0 mt-[1px]"
+                    className="material-symbols-outlined text-amber-400 shrink-0 mt-px"
                     style={{ fontSize: 15 }}
                   >
                     tips_and_updates
@@ -747,11 +740,11 @@ const WorkerProfileView = () => {
                   </p>
                 </div>
 
-                {/* Update button */}
+    
                 <div className="pt-1 border-t border-[#f3f4f6]">
                   <button
                     type="button"
-                    onClick={handlePw(onPwSubmit)}
+                    onClick={() => void handlePw(onPwSubmit)()}
                     disabled={isPwSubmitting}
                     className="h-10 px-6 rounded-xl border-2 border-[#059669] text-[#059669] text-[13px] font-bold hover:bg-[#059669] hover:text-white transition-all duration-150 disabled:opacity-50 flex items-center gap-2 active:scale-[.98]"
                   >
@@ -774,14 +767,13 @@ const WorkerProfileView = () => {
               </div>
             )}
 
-            {/* ── Danger Zone Tab ── */}
             {activeTab === "danger" && (
               <div className="px-6 md:px-8 py-7 animate-[fadeSlide_.2s_ease]">
 
-                {/* Warning callout */}
+
                 <div className="flex items-start gap-3 rounded-xl bg-red-50 border border-red-100 px-4 py-3.5 mb-6">
                   <span
-                    className="material-symbols-outlined text-red-400 flex-shrink-0 mt-[1px]"
+                    className="material-symbols-outlined text-red-400 shrink-0 mt-px"
                     style={{ fontSize: 17 }}
                   >
                     warning
@@ -791,11 +783,11 @@ const WorkerProfileView = () => {
                   </p>
                 </div>
 
-                {/* Delete account card */}
+  
                 <div className="rounded-xl border border-[#fecdd3] bg-white overflow-hidden">
                   <div className="px-5 py-4 flex items-start justify-between gap-4">
                     <div className="flex items-start gap-3 min-w-0">
-                      <div className="h-9 w-9 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <div className="h-9 w-9 rounded-xl bg-red-50 flex items-center justify-center shrink-0 mt-0.5">
                         <span
                           className="material-symbols-outlined text-red-500"
                           style={{ fontSize: 16 }}
@@ -818,7 +810,7 @@ const WorkerProfileView = () => {
                     <button
                       type="button"
                       onClick={handleDeleteAccount}
-                      className="flex-shrink-0 h-9 px-4 rounded-xl border border-[#fda4af] text-[#f43f5e] text-[12px] font-bold hover:bg-[#f43f5e] hover:text-white hover:border-[#f43f5e] transition-all duration-150 active:scale-[.97]"
+                      className="shrink-0 h-9 px-4 rounded-xl border border-[#fda4af] text-[#f43f5e] text-[12px] font-bold hover:bg-[#f43f5e] hover:text-white hover:border-[#f43f5e] transition-all duration-150 active:scale-[.97]"
                     >
                       Delete
                     </button>

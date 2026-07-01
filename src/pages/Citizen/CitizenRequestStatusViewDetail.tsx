@@ -19,9 +19,12 @@ const STEP_META: Record<string, { icon: string; label: string }> = {
   PAID: { icon: "payments", label: "Paid" },
 };
 
-const getStepState = (currentStatus: string, stepName: string) => {
-  const stepIndex = STATUS_ORDER.indexOf(stepName as any);
-  const currentIndex = STATUS_ORDER.indexOf(currentStatus as any);
+const getStepState = (
+  currentStatus: typeof STATUS_ORDER[number],
+  stepName: typeof STATUS_ORDER[number],
+) => {
+  const stepIndex = STATUS_ORDER.indexOf(stepName);
+  const currentIndex = STATUS_ORDER.indexOf(currentStatus);
   if (currentIndex > stepIndex) return "completed";
   if (currentIndex === stepIndex) return "active";
   return "upcoming";
@@ -31,7 +34,6 @@ interface RequestDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   request: PickupRequestItem;
-  totalearnings: number | undefined;
 }
 
 function InfoRow({
@@ -90,7 +92,6 @@ export default function RequestDetailsModal({
   isOpen,
   onClose,
   request,
-  totalearnings,
 }: RequestDetailsModalProps) {
   const [cancelled, setcancelled] = useState(false);
   if (!request) return null;

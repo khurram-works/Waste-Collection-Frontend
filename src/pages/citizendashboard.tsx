@@ -10,6 +10,7 @@ export default function CitizenDashboard() {
   const location = useLocation();
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSidebarOpen(false);
   }, [location.pathname]);
  

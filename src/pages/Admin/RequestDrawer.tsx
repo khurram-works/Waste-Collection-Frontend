@@ -32,7 +32,7 @@ const STATUS_CONFIG: Record<string, { bg: string; text: string; dot: string }> =
   };
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-  <p className="text-[10.5px] font-extrabold text-[#7a9e8a] uppercase tracking-[0.1em] mb-3">
+  <p className="text-[10.5px] font-extrabold text-[#7a9e8a] uppercase tracking-widest mb-3">
     {children}
   </p>
 );
@@ -87,7 +87,7 @@ const Avatar = ({
   const sizeClass = size === "lg" ? "size-11 text-sm" : "size-9 text-xs";
   return (
     <div
-      className={`${sizeClass} rounded-xl bg-gradient-to-br ${color} flex items-center justify-center text-white font-bold shrink-0 shadow-sm`}
+      className={`${sizeClass} rounded-xl bg-linear-to-br ${color} flex items-center justify-center text-white font-bold shrink-0 shadow-sm`}
     >
       {initials}
     </div>
@@ -153,7 +153,7 @@ const StyledListbox = ({
         <ListboxOptions
           anchor="bottom"
           className="
-           z-[9999] w-[var(--button-width)] overflow-auto rounded-xl
+           z-9999 w-(--button-width) overflow-auto rounded-xl
     border border-[#e4ebe7] bg-white py-1.5
     shadow-xl shadow-black/8 focus:outline-none
     max-h-52
@@ -281,8 +281,12 @@ const RequestDrawer: React.FC<RequestDrawerProps> = ({
         throw new Error(result.message || "Assignment failed");
       toast.success(result.message || "Request assigned successfully!");
       onClose();
-    } catch (error: any) {
-      toast.error(error.message || "Something went wrong. Please try again.");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || "Something went wrong. Please try again.");
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -297,8 +301,12 @@ const RequestDrawer: React.FC<RequestDrawerProps> = ({
       toast.success(response.message || "Request rejected.");
       setShowRejectConfirm(false);
       onClose();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to reject. Please try again.");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || "Failed to reject. Please try again.");
+      } else {
+        toast.error("Failed to reject. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -315,7 +323,7 @@ const RequestDrawer: React.FC<RequestDrawerProps> = ({
         <DialogPanel
           transition
           className="
-            w-[420px] max-w-full bg-[#f6f9f7] h-full shadow-2xl flex flex-col
+            w-105 max-w-full bg-[#f6f9f7] h-full shadow-2xl flex flex-col
             transform transition duration-300 ease-out
             data-closed:translate-x-full
           "
@@ -419,7 +427,7 @@ const RequestDrawer: React.FC<RequestDrawerProps> = ({
                 )}
                 {request.notes && (
                   <div className="mx-4 mb-4">
-                    <p className="text-[10.5px] font-extrabold text-[#7a9e8a] uppercase tracking-[0.1em] mb-1.5">
+                    <p className="text-[10.5px] font-extrabold text-[#7a9e8a] uppercase tracking-widest mb-1.5">
                       Notes
                     </p>
                     <p className="text-[13px] text-[#4a6e5a] italic leading-relaxed bg-[#f6f9f7] rounded-xl px-3 py-2.5 border border-[#e4ebe7]">

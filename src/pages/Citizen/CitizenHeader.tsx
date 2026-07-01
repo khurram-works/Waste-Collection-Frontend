@@ -14,7 +14,7 @@ interface Notification {
   type: string;
   title: string;
   message: string;
-  metadata: any;
+  metadata: Record<string, unknown>;
   isRead: boolean;
   createdAt: Date;
 }
@@ -136,7 +136,7 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
 
 
   useEffect(() => {
-    if (!user?.userId) return;
+    if (!user?.userId) return undefined;
     isPollingRef.current = true;
 
     async function poll() {
@@ -164,7 +164,7 @@ const CitizenHeader: React.FC<CitizenHeaderProps> = ({ user, onMenuClick }) => {
   }, [user?.userId]);
 
   useEffect(() => {
-    if (!showNotifications) return;
+    if (!showNotifications) return undefined;
 
     function handleOutside(e: MouseEvent) {
       if (

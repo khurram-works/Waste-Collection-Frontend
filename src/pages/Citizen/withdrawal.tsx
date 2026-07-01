@@ -9,7 +9,7 @@ import {
 } from "@headlessui/react";
 import { CheckIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, useWatch, Controller, Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { withdrawRequest } from "../../api/auth";
@@ -118,12 +118,11 @@ export default function WithdrawalModal({
     register,
     handleSubmit,
     control,
-    watch,
     setValue,
     trigger,
     formState: { errors, isValid },
   } = useForm<WithdrawRequestData>({
-    resolver: yupResolver(schema) as any,
+    resolver: yupResolver(schema) as Resolver<WithdrawRequestData>,
     defaultValues: {
       amount: availableBalance,
       paymentMethod: "BANK",
@@ -141,11 +140,11 @@ export default function WithdrawalModal({
       setValue("userId", user.userId, { shouldValidate: true });
       trigger("userId");
     }
-  }, [user]);
+  }, [user?.userId, setValue, trigger]);
  
-  const paymentMethod = watch("paymentMethod");
-  const amount        = watch("amount");
- 
+  const paymentMethod = useWatch({ control, name: "paymentMethod" });
+  const amount = useWatch({ control, name: "amount" });
+
   useEffect(() => {
     setValue("accountNumber", "", { shouldValidate: false });
     if (paymentMethod === "EASYPAISA") {
@@ -391,7 +390,7 @@ export default function WithdrawalModal({
                                   anchor="bottom"
                                   transition
                                   className={clsx(
-                                    "w-(--input-width) rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl z-[100] [--anchor-gap:--spacing(1)] empty:invisible",
+                                    "w-(--input-width) rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl z-100 [--anchor-gap:--spacing(1)] empty:invisible",
                                     "transition duration-100 ease-in data-leave:data-closed:opacity-0"
                                   )}
                                 >
@@ -401,7 +400,7 @@ export default function WithdrawalModal({
                                       value={bank}
                                       className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] cursor-pointer data-focus:bg-emerald-50 hover:bg-emerald-50 select-none"
                                     >
-                                      <CheckIcon className="invisible w-3.5 h-3.5 fill-emerald-600 group-data-selected:visible flex-shrink-0" />
+                                      <CheckIcon className="invisible w-3.5 h-3.5 fill-emerald-600 group-data-selected:visible shrink-0" />
                                       <span className="text-slate-800 font-medium">
                                         {bank.name}
                                       </span>

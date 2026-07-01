@@ -1,3 +1,5 @@
+
+/* eslint-disable react-refresh/only-export-components */
 import {
   createContext,
   ReactNode,
@@ -41,8 +43,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     try {
       await logoutUser();
-    } catch {
-      // cookies may already be cleared
+    } catch (error) {
+      // Safe fallback: ignore logout failures while still clearing client state.
+      console.error(error);
     }
     setUser(null);
   };

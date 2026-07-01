@@ -40,7 +40,7 @@ const CitizenSidebar: React.FC<CitizenSidebarProps> = ({
   co2GoalKg = 20,
 }) => {
   const navigate = useNavigate();
-  const progressPercent = Math.min(Math.round((co2SavedKg / co2GoalKg) * 100), 100);
+  const _progressPercent = Math.min(Math.round((co2SavedKg / co2GoalKg) * 100), 100);
   const { logout } = useAuthContext();
   const handleLogout = async() => {
     await setCitizenInactive();
@@ -51,8 +51,7 @@ const CitizenSidebar: React.FC<CitizenSidebarProps> = ({
  
   return (
     <aside className="w-64 h-full bg-white border-r border-gray-100 flex flex-col overflow-y-auto shadow-sm">
- 
-      {/* ── Mobile close button (only relevant when drawer is open) ── */}
+
       {onClose && (
         <div className="flex items-center justify-between px-4 pt-4 pb-2 lg:hidden">
           <span className="text-xs font-bold tracking-widest text-gray-400 uppercase">
@@ -68,16 +67,15 @@ const CitizenSidebar: React.FC<CitizenSidebarProps> = ({
         </div>
       )}
  
-      {/* ── Scrollable nav area ── */}
+
       <nav className="flex-1 px-3 py-5 space-y-5 overflow-y-auto">
         {NAV_GROUPS.map((group) => (
           <div key={group.label}>
-            {/* Group label */}
             <p className="px-3 mb-1.5 text-[10px] font-bold tracking-[0.14em] uppercase text-gray-400 select-none">
               {group.label}
             </p>
  
-            {/* Nav items */}
+
             <div className="space-y-0.5">
               {group.items.map((item) => (
                 <NavLink
@@ -96,15 +94,15 @@ const CitizenSidebar: React.FC<CitizenSidebarProps> = ({
                 >
                   {({ isActive }) => (
                     <>
-                      {/* Active left-bar indicator */}
+
                       {isActive && (
-                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-emerald-500" />
+                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.75 h-5 rounded-r-full bg-emerald-500" />
                       )}
  
-                      {/* Icon */}
+
                       <span
                         className={[
-                          "material-symbols-outlined text-[20px] flex-shrink-0 transition-colors duration-200",
+                          "material-symbols-outlined text-[20px] shrink-0 transition-colors duration-200",
                           isActive
                             ? "text-emerald-600"
                             : "text-gray-400 group-hover:text-gray-600",
@@ -113,12 +111,11 @@ const CitizenSidebar: React.FC<CitizenSidebarProps> = ({
                         {item.icon}
                       </span>
  
-                      {/* Label */}
                       <span className="leading-none">{item.label}</span>
  
-                      {/* Active dot — far right */}
+
                       {isActive && (
-                        <span className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+                        <span className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                       )}
                     </>
                   )}
@@ -129,8 +126,8 @@ const CitizenSidebar: React.FC<CitizenSidebarProps> = ({
         ))}
       </nav>
  
-      {/* ── Bottom section ── */}
-      <div className="px-3 pb-4 space-y-3 flex-shrink-0">
+
+      <div className="px-3 pb-4 space-y-3 shrink-0">
  
         {/* Eco Impact Card
         <div className="relative mx-1 p-4 rounded-2xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 text-white overflow-hidden shadow-lg shadow-emerald-600/20">
